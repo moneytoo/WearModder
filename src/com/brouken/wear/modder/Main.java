@@ -1,32 +1,46 @@
 package com.brouken.wear.modder;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
         for (String arg : args) {
-            System.out.println(arg);
-            processPath(arg);
+            final Path path = Paths.get(arg);
+
+            if (Files.isDirectory(path))
+                Files.walk(Paths.get(arg))
+                        .filter(Files::isRegularFile)
+                        .forEach(Main::processFile);
+            else
+                processFile(Paths.get(arg));
+
         }
     }
 
-    private static void processPath(String path) throws IOException {
-        final File file = new File(path);
+    private static void processFile(Path path) {
+        if (!path.toString().toLowerCase().endsWith(".xml"))
+            return;
 
-        String content = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        System.out.println(path.toString());
 
-        content = processRange(content, "dip", 2, 720);
-        content = processRange(content, "sp", 2, 240);
+        try {
+            String content = new String(Files.readAllBytes(path));
 
-        content = content.replace(">?android:actionBarSize", ">28.0dip");
+            content = processRange(content, "dip", 2, 720);
+            content = processRange(content, "sp", 2, 240);
 
-        FileUtils.writeStringToFile(file, content, StandardCharsets.UTF_8);
+            content = content.replace(">?android:actionBarSize", ">28.0dip");
+
+            Files.write(path, content.getBytes(), StandardOpenOption.WRITE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static String processRange(String content, final String units, final int min, final int max) {
