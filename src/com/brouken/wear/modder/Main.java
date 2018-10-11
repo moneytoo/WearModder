@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 
 public class Main {
 
+    private static final int COEF = 2;
+
     public static void main(String[] args) throws Exception {
 
         for (String arg : args) {
@@ -34,7 +36,8 @@ public class Main {
             content = processRange(content, "dip", 2, 720);
             content = processRange(content, "sp", 2, 240);
 
-            content = content.replace(">?android:actionBarSize", ">28.0dip");
+            content = content.replace(">?android:actionBarSize<", ">28.0dip<");
+            content = content.replace("\"?actionBarSize\"", "\"28.0dip\"");
 
             Files.write(path, content.getBytes());
         } catch (IOException e) {
@@ -44,8 +47,8 @@ public class Main {
 
     private static String processRange(String content, final String units, final int min, final int max) {
         for (int i = min; i < max; i++) {
-            content = content.replace(">" + i + ".0" + units, ">" + i/2 + ".0" + units);
-            content = content.replace("\"" + i + ".0" + units, "\"" + i/2 + ".0" + units);
+            content = content.replace(">" + i + ".0" + units, ">" + i/COEF + ".0" + units);
+            content = content.replace("\"" + i + ".0" + units, "\"" + i/COEF + ".0" + units);
         }
         return content;
     }
