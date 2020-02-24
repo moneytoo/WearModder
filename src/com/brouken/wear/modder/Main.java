@@ -25,7 +25,7 @@ public class Main {
     }
 
     private static void processFile(Path path) {
-        if (!path.toString().toLowerCase().endsWith(".xml"))
+        if (!path.toString().toLowerCase().endsWith(".xml") || path.toString().toLowerCase().endsWith("strings.xml") || path.toString().toLowerCase().endsWith("plurals.xml"))
             return;
 
         System.out.println(path.toString());
